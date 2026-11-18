@@ -24,6 +24,19 @@ function frame(src){
 function readVal(f){
   try{ return f.contentWindow.document.querySelector('[data-k="life.mission"]').value; }catch(e){ return 'READ_ERROR:' + e.message; }
 }
+function goLife(f){
+  return new Promise(function(res){
+    try{
+      var d = f.contentWindow.document;
+      if (d.querySelector('[data-k="life.mission"]')) return res(true);
+      var btns = d.querySelectorAll('nav button, button');
+      for (var i=0;i<btns.length;i++){
+        if (btns[i].textContent.indexOf('1. 평생 계획') >= 0){ btns[i].click(); break; }
+      }
+    }catch(e){}
+    setTimeout(function(){ res(false); }, 400);
+  });
+}
 function storedMission(){
   try{ var p = JSON.parse(localStorage.getItem(LS) || 'null'); return p && p.life ? String(p.life.mission) : '(none)'; }catch(e){ return 'PARSE_ERROR'; }
 }
@@ -50,6 +63,7 @@ async function run(){
     localStorage.removeItem(LS); localStorage.removeItem(FLAG);
     c.setup();
     var f = await frame('3p.html?t=' + Date.now() + '-' + i);
+    await goLife(f);
     var v = readVal(f);
     var saved = storedMission(), fl = flagSet();
     var ok = c.check(v);
