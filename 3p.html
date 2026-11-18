@@ -486,6 +486,8 @@
      0. 기본값
      ========================================================= */
   var LS = '3pbinder_v1';
+  var MISSION = '나는 살아 숨 쉬는 동안 배움과 성장을 멈추지 않고, 끝내 이루어내어 아이들에게 존경받는 엄마가 된다.';
+  var MISSION_SEED_KEY = '3p.missionSeeded.v1';
   var AC  = {1:'#4C5FD5', 2:'#17907A', 3:'#C4822C', 4:'#B05285', 5:'#22B573'};
   var ACS = {1:'#EEF1FF', 2:'#E6F5F0', 3:'#FCF2E2', 4:'#FBECF2', 5:'#E9F8F0'};
   var DOW = ['일','월','화','수','목','금','토'];
@@ -523,7 +525,7 @@
     return {
       v:1, lastStep:5,
       life:{
-        mission:'', wish:'', values:[],
+        mission:MISSION, wish:'', values:[],
         areas:[
           {id:'a1', name:'건강', vision:''},
           {id:'a2', name:'재정·사업', vision:''},
@@ -647,6 +649,21 @@
   }
 
   var state = load();
+
+  /* 이미 한 번 열어 보아 빈 사명이 저장된 기기에서도 최초 1회만 사명을 채워 넣는다.
+     이후 사용자가 직접 고치거나 지우면 다시 덮어쓰지 않는다. */
+  (function seedMissionOnce(){
+    try{
+      if(localStorage.getItem(MISSION_SEED_KEY)) return;
+      var ok = true;
+      if(!str(state.life && state.life.mission).trim()){
+        state.life.mission = MISSION;
+        try{ localStorage.setItem(LS, JSON.stringify(state)); }catch(e){ ok = false; }
+      }
+      if(ok) localStorage.setItem(MISSION_SEED_KEY, '1');
+    }catch(e){}
+  })();
+
   var view = {step:5, year:0, monthDate:null, weekDate:null, dayDate:null};
 
   (function initView(){
