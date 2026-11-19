@@ -426,6 +426,7 @@
       row.dataset.fk = 'mini:' + k + ':' + it.id;
       row.setAttribute('aria-pressed', it.done ? 'true' : 'false');
       row.setAttribute('aria-label', view.m + '월 ' + n + '일 ' + it.t + (it.done ? ', 완료 해제' : ', 완료 표시'));
+      row.title = it.t;
 
       var g = document.createElement('span');
       g.className = 'mglyph';
@@ -531,10 +532,10 @@
       inp.maxLength = MAXLEN;
       inp.setAttribute('aria-label', '할 일 이름 고치기');
       inp.addEventListener('keydown', function(e){
-        if (e.key === 'Enter'){ e.preventDefault(); commitEdit(inp.value); }
+        if (e.key === 'Enter'){ e.preventDefault(); commitEdit(inp.value, true); }
         else if (e.key === 'Escape'){ e.preventDefault(); editId = null; renderDay(); }
       });
-      inp.addEventListener('blur', function(){ if (editId === it.id) commitEdit(inp.value); });
+      inp.addEventListener('blur', function(){ if (editId === it.id) commitEdit(inp.value, false); });
       li.appendChild(inp);
       setTimeout(function(){
         try { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } catch(e){}
@@ -584,6 +585,7 @@
 
   /* ---------- 동작 ---------- */
   function toggleItem(k, id, fk){
+    flushEdit();
     var arr = getList(k);
     for (var i = 0; i < arr.length; i++){
       if (arr[i].id === id){ arr[i].done = !arr[i].done; break; }
@@ -594,10 +596,7 @@
   }
 
   function selectDate(k){
-    if (editId){
-      var inp = document.querySelector('#todoList .t-edit');
-      commitEdit(inp ? inp.value : '');
-    }
+    flushEdit();
     if (!validKey(k)) return;
     sel = k;
     render();
@@ -627,7 +626,7 @@
     return true;
   }
 
-  function commitEdit(value){
+  function commitEdit(value, focusTitle){
     if (!editId) return;
     var id = editId;
     editId = null;
@@ -635,16 +634,39 @@
     var it = null;
     for (var i = 0; i < arr.length; i++) if (arr[i].id === id) it = arr[i];
     var t = clean(value);
+    var changed = false;
     if (it && t && t !== it.t){
       it.t = t;
       save();
-      toast('이름을 고쳤어요');
+      changed = true;
     }
-    render();
-    refocus('todo:' + id + ':name');
+    var inp = document.querySelector('#todoList .t-edit');
+    if (inp && inp.parentNode && it){
+      /* 같은 자리에서 제목 버튼으로 바꿔, 목록을 다시 그리지 않고도 이어서 누를 수 있게 한다 */
+      var tx = document.createElement('button');
+      tx.type = 'button';
+      tx.className = 't-name';
+      tx.dataset.fk = 'todo:' + id + ':name';
+      tx.textContent = it.t;
+      tx.setAttribute('aria-label', it.t + ' — 눌러서 이름 고치기');
+      tx.addEventListener('click', function(){ editId = id; renderDay(); });
+      inp.parentNode.replaceChild(tx, inp);
+      if (focusTitle){ try { tx.focus({ preventScroll:true }); } catch(e){} }
+      renderGrid();
+    } else {
+      render();
+    }
+    if (changed) toast('이름을 고쳤어요');
+  }
+
+  function flushEdit(){
+    if (!editId) return;
+    var inp = document.querySelector('#todoList .t-edit');
+    commitEdit(inp ? inp.value : '');
   }
 
   function deferItem(k, id){
+    flushEdit();
     var arr = getList(k);
     var it = null, idx = -1;
     for (var i = 0; i < arr.length; i++){ if (arr[i].id === id){ it = arr[i]; idx = i; break; } }
@@ -662,6 +684,7 @@
   }
 
   function deleteItem(k, id){
+    flushEdit();
     var arr = getList(k);
     var it = null;
     for (var i = 0; i < arr.length; i++) if (arr[i].id === id) it = arr[i];
@@ -676,7 +699,7 @@
 
   /* ---------- 월 이동 ---------- */
   function shiftMonth(delta){
-    if (editId) editId = null;
+    flushEdit();
     var y = view.y, m = view.m + delta;
     if (m < 1){ m = 12; y--; }
     if (m > 12){ m = 1; y++; }
