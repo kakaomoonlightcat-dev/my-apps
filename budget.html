@@ -325,7 +325,7 @@
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <div class="grab"></div>
     <h3 id="sheetTitle">항목</h3>
-    <p class="sheet-note" id="sheetNote">이번 달 목록에만 적용됩니다</p>
+    <p class="sheet-note" id="sheetNote">추가한 항목은 다른 달 목록에도 함께 들어가요</p>
     <label class="flabel" for="sheetName">이름</label>
     <input id="sheetName" type="text" maxlength="14" autocomplete="off" enterkeyhint="done" placeholder="예: 식비">
     <div class="sheet-btns">
@@ -747,7 +747,9 @@
   function openSheet(g, item){
     sheetCtx = {g: g, item: item};
     $('sheetTitle').textContent = item ? (GROUP_LABEL[g] + ' 항목 고치기') : (GROUP_LABEL[g] + ' 항목 추가');
-    $('sheetNote').textContent = keyLabel(cur) + ' 목록에만 적용됩니다';
+    $('sheetNote').textContent = item
+      ? '다른 달의 같은 항목도 함께 바뀌어요 (금액이 있는 달은 유지)'
+      : '추가한 항목은 다른 달 목록에도 함께 들어가요';
     $('sheetName').value = item ? item.name : '';
     $('sheetDelete').hidden = !item;
     var back = $('sheet');
@@ -774,9 +776,18 @@
 
     var g = sheetCtx.g;
     var isNew = !sheetCtx.item;
+    /* 다른 달에도 같은 목록이 있으므로 항목 구조를 함께 맞춘다 */
+    var otherKeys = Object.keys(db.months).filter(function(k){ return k !== cur; });
+
     if (isNew) {
       var item = {id: uid(), name: name, amount: 0};
       list.push(item);
+      otherKeys.forEach(function(k){
+        var om = db.months[k];
+        if (!om || !Array.isArray(om[g])) return;
+        var exists = om[g].some(function(x){ return x.name === name; });
+        if (!exists) om[g].push({id: uid(), name: name, amount: 0});
+      });
       save();
       closeSheet();
       renderAll();
@@ -786,7 +797,17 @@
         if (inp) { try { inp.focus(); inp.select(); } catch (e) {} }
       }, 120);
     } else {
+      var oldName = sheetCtx.item.name;
       sheetCtx.item.name = name;
+      if (oldName !== name) {
+        otherKeys.forEach(function(k){
+          var om = db.months[k];
+          if (!om || !Array.isArray(om[g])) return;
+          if (om[g].some(function(x){ return x.name === name; })) return; /* 이름이 겹치면 그 달은 건드리지 않는다 */
+          var hits = om[g].filter(function(x){ return x.name === oldName; });
+          if (hits.length === 1) hits[0].name = name;
+        });
+      }
       save();
       closeSheet();
       renderAll();
@@ -797,9 +818,18 @@
     if (!sheetCtx || !sheetCtx.item) return;
     var item = sheetCtx.item;
     var g = sheetCtx.g;
-    if (!confirm("'" + item.name + "' 항목을 " + keyLabel(cur) + "에서 지울까요?\n입력한 금액도 함께 사라집니다.")) return;
+    if (!confirm("'" + item.name + "' 항목을 지울까요?\n이 달의 입력 금액도 함께 사라져요. (다른 달에 기록된 금액은 유지됩니다)")) return;
     var m = monthData(cur);
     m[g] = m[g].filter(function(x){ return x !== item; });
+    /* 다른 달에서는 아직 금액이 없는(0원) 같은 항목만 정리하고, 기록된 금액은 남긴다 */
+    Object.keys(db.months).forEach(function(k){
+      if (k === cur) return;
+      var om = db.months[k];
+      if (!om || !Array.isArray(om[g])) return;
+      om[g] = om[g].filter(function(x){
+        return !(x.name === item.name && (!x.amount || Number(x.amount) === 0));
+      });
+    });
     save();
     closeSheet();
     renderAll();
