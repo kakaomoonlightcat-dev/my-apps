@@ -915,7 +915,7 @@
         '<button class="mini del" type="button" data-act="goal-del" data-goal="' + g.id + '">삭제</button>' +
       '</div>' +
       '<h3>' + esc(g.title || '제목 없는 목표') + '</h3>' +
-      '<p class="gmetric"><b>결과 지표</b>' + esc(g.metric || '아직 없음') + '</p>' +
+      '<p class="gmetric"><b>결과 지표</b> ' + esc(g.metric || '아직 없음') + '</p>' +
       (g.tactics.length ? '<div class="tacs">' + tacHtml + '</div>' : '<div class="tacs"><p class="hint">아직 주간 전술이 없어요. 전술을 넣어야 주간 실행표에 나타납니다.</p></div>') +
       '<button class="add-tac" type="button" data-act="tac-add" data-goal="' + g.id + '">+ 주간 전술 추가</button>' +
     '</article>';
