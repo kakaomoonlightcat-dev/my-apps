@@ -100,11 +100,12 @@
   .vbadge{display:inline-block;font-size:11px;font-weight:800;padding:5px 11px;border-radius:999px;background:var(--blue-2);color:var(--blue)}
   .vision-card{background:linear-gradient(180deg,#F7F9FF 0%,#FFFFFF 100%);border:1px solid #E3E9FB}
   #vision{
-    width:100%;margin-top:10px;min-height:74px;resize:vertical;
-    border:1px solid var(--line);border-radius:var(--r-md);padding:11px 12px;
-    background:#fff;line-height:1.6;font-size:15px;font-weight:600;letter-spacing:-.01em;
+    width:100%;margin-top:8px;min-height:72px;resize:vertical;
+    border:1px solid transparent;border-radius:var(--r-md);padding:9px 10px;
+    background:transparent;line-height:1.65;font-size:15px;font-weight:600;letter-spacing:-.01em;
+    transition:background .15s ease,border-color .15s ease;
   }
-  #vision:focus{outline:none;border-color:#B9C6F5;box-shadow:0 0 0 3px rgba(59,91,219,.09)}
+  #vision:focus{outline:none;background:#fff;border-color:#C9D6FF;box-shadow:0 0 0 3px rgba(59,91,219,.08)}
   .vision-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}
   .autosave{font-size:11px;font-weight:700;color:var(--ink3)}
 
@@ -119,7 +120,8 @@
   .btn.green{background:var(--green);color:#fff;box-shadow:0 6px 14px rgba(16,152,102,.22)}
   .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink2)}
   .btn.warn{background:#FFF1EC;color:var(--red)}
-  .btn:disabled{opacity:.5;box-shadow:none}
+  .btn:disabled{opacity:.55;box-shadow:none}
+  .btn.primary:disabled{background:#E9EDF6;color:#A7B1C4;opacity:1}
   .btn.sm{padding:8px 11px;font-size:12px;border-radius:10px}
 
   .mini{font-size:11.5px;font-weight:800;color:var(--ink3);padding:5px 7px;border-radius:8px;background:var(--line2)}
@@ -163,7 +165,7 @@
   /* ---------- 점수판 ---------- */
   .chart{margin-top:16px}
   .chart-labels{display:flex;gap:4px;height:15px}
-  .chart-labels span{flex:1 1 0;text-align:center;font-size:9.5px;font-weight:800;color:var(--ink3);line-height:15px;overflow:hidden}
+  .chart-labels span{flex:1 1 0;text-align:center;font-size:10px;font-weight:800;color:var(--ink3);line-height:16px;overflow:hidden}
   .chart-area{position:relative;height:128px;margin-top:2px}
   .bars{display:flex;gap:4px;height:100%}
   .bar-col{flex:1 1 0;min-width:0;height:100%}
@@ -171,7 +173,7 @@
     width:100%;height:100%;border-radius:7px;background:#F3F6FB;
     display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;
   }
-  .bar-track.empty{background:#F6F8FC;border:1px dashed #E7ECF5}
+  .bar-track.empty{background:#F4F7FC}
   .bar-fill{width:100%;border-radius:7px;transition:height .35s ease}
   .target-line{position:absolute;left:0;right:0;bottom:85%;border-top:1.5px dashed rgba(16,152,102,.75);pointer-events:none}
   .target-line em{
@@ -180,7 +182,7 @@
     padding:1px 5px;border-radius:999px;white-space:nowrap;
   }
   .chart-weeks{display:flex;gap:4px;margin-top:6px}
-  .chart-weeks span{flex:1 1 0;text-align:center;font-size:9.5px;font-weight:800;color:var(--ink3);white-space:nowrap;overflow:hidden}
+  .chart-weeks span{flex:1 1 0;text-align:center;font-size:10.5px;font-weight:800;color:#7B879E;line-height:1.5;white-space:nowrap}
   .chart-weeks span.now{color:var(--ink);font-weight:800}
   .avg{
     margin-top:13px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;
@@ -401,7 +403,7 @@
           <span><i style="background:#109866"></i>85% 이상</span>
           <span><i style="background:#3B5BDB"></i>70~84%</span>
           <span><i style="background:#D97706"></i>70% 미만</span>
-          <span><i style="background:#F3F6FB;border:1px solid #E2E8F0"></i>아직 시작 전</span>
+          <span><i style="background:#EDF1F8"></i>아직 시작 전</span>
         </div>
       </div>
 
